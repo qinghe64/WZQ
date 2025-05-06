@@ -55,6 +55,7 @@ public:
     void updateGameMap(int row,int col);
 
     bool isWin(int row,int col);
+    void calulateScore();
 
 };
 

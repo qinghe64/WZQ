@@ -5,6 +5,8 @@
 #include<QPainter>
 #include<QMouseEvent>
 #include<math.h>
+#include<QMessageBox>
+#include<QTimer>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -77,7 +79,29 @@ void MainWindow::paintEvent(QPaintEvent *event)
             }
         }
     //判断输赢
+    if(clickPosRow>0&&clickPosRow<BOARD_GRAD_SIZE&&
+        clickPosCol>0&&clickPosCol<BOARD_GRAD_SIZE&&
+        (game->gameMapVec[clickPosRow][clickPosCol]==1||
+        game->gameMapVec[clickPosRow][clickPosCol]==-1))
+    {
+        if(game->isWin(clickPosRow,clickPosCol)&&game->gameStatus==PLAYING)
+        {
+            game->gameStatus=WIN;
+            QString winner;
+            if(game->gameMapVec[clickPosRow][clickPosCol]==1)
+                winner="黑棋方";
+                    else if (game->gameMapVec[clickPosRow][clickPosCol]==-1) {
+                winner="白棋方";
+                }
 
+                    QMessageBox::StandardButton btnValue=QMessageBox::information(this,"五子棋决战", winner+"胜利！");
+                if(btnValue==QMessageBox::Ok)
+                    {
+                        game->startGame(game_type);
+                    game->gameStatus=PLAYING;
+                }
+        }
+    }
 
 }
 
@@ -194,8 +218,8 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 
     if(game_type==AI)
     {
-        //人机模式
         //AI模式
+        QTimer::singleShot(AI_THINK_TIME,this,SLOT(chessOneByAI()));
     }
 }
 
