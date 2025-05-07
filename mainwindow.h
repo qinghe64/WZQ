@@ -1,56 +1,38 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include"GameModel.h"
-
 #include <QMainWindow>
-
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
-QT_END_NAMESPACE
+#include "GameModel.h"
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-private:
-    Ui::MainWindow *ui;
-
-    GameModel* game;//游戏指针
-    GameType game_type;//存储游戏类型
-
-    int clickPosRow,clickPosCol;//储存点击的位置
-    bool selectPos=false;//是否移动到合适位置，以选中交叉点
-
-    //绘制
+protected:
+    // 绘制
     void paintEvent(QPaintEvent *event);
-
-    void initGame();
-   void initAIGame();
-
+    // 监听鼠标移动情况，方便落子
     void mouseMoveEvent(QMouseEvent *event);
-   void mouseReleaseEvent(QMouseEvent *event);
+    // 实际落子
+    void mouseReleaseEvent(QMouseEvent *event);
 
-    void  chessOneByPerson();
+private:
+    GameModel *game; // 游戏指针
+    GameType game_type; // 存储游戏类型
+    int clickPosRow, clickPosCol; // 存储将点击的位置
+    void initGame();
+    void checkGame(int y, int x);
 
-   private slots:
-    void chessOneByAI();
+private slots:
+    void chessOneByPerson(); // 人执行
+    void chessOneByAI(); // AI下棋
 
+    void initPVPGame();
+    void initPVEGame();
 };
+
 #endif // MAINWINDOW_H
-
-
-
-
-
-
-
-
-
-

@@ -1,63 +1,46 @@
 #ifndef GAMEMODEL_H
 #define GAMEMODEL_H
 
+// ---- 五子棋游戏模型类 ---- //
+#include <vector>
 
-//---五子棋游戏模型类---//
-#include<vector>
-
-//游戏类型，双人还是AI
+// 游戏类型，双人还是AI（目前固定让AI下黑子）
 enum GameType
 {
-    Man,//双人对战模式
-    AI//人机对弈模式
+    PERSON,
+    BOT
 };
 
-//游戏状态
+// 游戏状态
 enum GameStatus
 {
-    PLAYING,//游戏中
-    WIN,//赢
-    DEAD//输
+    PLAYING,
+    WIN,
+    DEAD
 };
 
-//棋盘尺寸
-const int BOARD_GRAD_SIZE=15;
-
-const int MARGIN=30;//棋盘边缘空隙
-const int CHESS_RADIUS=15;//棋子半径
-const int MARK_SIZE=6;//落子标记边长
-const int BLOCK_SIZE=40;//格子的大小
-const int POS_OFFSET=BLOCK_SIZE*0.4;//鼠标点击的模糊距离上限
-
-const int AI_THINK_TIME=700;//AI下棋的思考时间
+// 棋盘尺寸
+const int kBoardSizeNum = 15;
 
 class GameModel
 {
 public:
-    GameModel(){};
+    GameModel();
 
-    //存储当前游戏棋盘和棋子的情况，空白为0，黑子1，白子-1
-    std::vector<std::vector<int>> gameMapVec;
+public:
+    std::vector<std::vector<int>> gameMapVec; // 存储当前游戏棋盘和棋子的情况,空白为0，白子1，黑子-1
+    std::vector<std::vector<int>> scoreMapVec; // 存储各个点位的评分情况，作为AI下棋依据
+    bool playerFlag; // 标示下棋方
+    GameType gameType; // 游戏模式
+    GameStatus gameStatus; // 游戏状态
 
-    //储存各个点位的评分情况，作为AI下棋的依据
-    std::vector<std::vector<int>>scoreMapVec;
-
-    //标识下棋方，true：黑棋方   false：AI 白棋方
-    bool playerFlag;
-
-    GameType gameType;//游戏模式：人机对弈还是双人
-
-    GameStatus gameStatus;//游戏状态
-
-    void startGame(GameType type);
-
-    void actionByPerson(int row,int col);
-    void updateGameMap(int row,int col);
-
-    bool isWin(int row,int col);
-    void calulateScore();
-    void actionByAI(int &clickrow,int& clickcol);
-
+    void startGame(GameType type); // 开始游戏
+    void calculateScore(); // 计算评分
+    void actionByPerson(int row, int col); // 人执行下棋
+    void actionByAI(int &clickRow, int &clickCol); // 机器执行下棋
+    void updateGameMap(int row, int col); // 每次落子后更新游戏棋盘
+    bool isWin(int row, int col); // 判断游戏是否胜利
+    bool isDeadGame(); // 判断是否和棋
 };
 
 #endif // GAMEMODEL_H
