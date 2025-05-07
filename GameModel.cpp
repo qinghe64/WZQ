@@ -8,10 +8,10 @@ void GameModel::startGame(GameType type)
 
     //初始化棋盘
     gameMapVec.clear();
-    for(int i=0;i<BOARD_GRAD_SIZE;i++)
+    for(int i=0;i<=BOARD_GRAD_SIZE;i++)
     {
         std::vector<int>lineBoard;
-        for(int j=0;j<BOARD_GRAD_SIZE;j++)
+        for(int j=0;j<=BOARD_GRAD_SIZE;j++)
             lineBoard.push_back(0);
         gameMapVec.push_back(lineBoard);
     }
@@ -19,10 +19,10 @@ void GameModel::startGame(GameType type)
     if(gameType==AI)
     {
         scoreMapVec.clear();
-        for(int i=0;i<BOARD_GRAD_SIZE;i++)
+        for(int i=0;i<=BOARD_GRAD_SIZE;i++)
         {
             std::vector<int>lineScore;
-            for(int j=0;j<BOARD_GRAD_SIZE;j++)
+            for(int j=0;j<=BOARD_GRAD_SIZE;j++)
             {
                 lineScore.push_back(0);
                 scoreMapVec.push_back(lineScore);
@@ -57,8 +57,8 @@ bool GameModel::isWin(int row,int col)
     //水平方向
     for(int i=0;i<5;i++)
     {
-        if(col-i>0&&
-            col-i+4<BOARD_GRAD_SIZE&&
+        if(col-i>=0&&
+            col-i+4<=BOARD_GRAD_SIZE&&
             gameMapVec[row][col-i]==gameMapVec[row][col-i+1]&&
              gameMapVec[row][col-i]==gameMapVec[row][col-i+2]&&
              gameMapVec[row][col-i]==gameMapVec[row][col-i+3]&&
@@ -68,8 +68,8 @@ bool GameModel::isWin(int row,int col)
     //竖直方向
     for(int i=0;i<5;i++)
     {
-        if(row-i>0&&
-            row-i+4<BOARD_GRAD_SIZE&&
+        if(row-i>=0&&
+            row-i+4<=BOARD_GRAD_SIZE&&
             gameMapVec[row-i][col]==gameMapVec[row-i+1][col]&&
             gameMapVec[row-i][col]==gameMapVec[row-i+2][col]&&
             gameMapVec[row-i][col]==gameMapVec[row-i+3][col]&&
@@ -79,10 +79,10 @@ bool GameModel::isWin(int row,int col)
     //斜向左上方向
     for(int i=0;i<5;i++)
     {
-        if(col-i>0&&
-            row-i>0&&
-            col-i+4<BOARD_GRAD_SIZE&&
-            row-i+4<BOARD_GRAD_SIZE&&
+        if(col-i>=0&&
+            row-i>=0&&
+            col-i+4<=BOARD_GRAD_SIZE&&
+            row-i+4<=BOARD_GRAD_SIZE&&
             gameMapVec[row-i][col-i]==gameMapVec[row-i+1][col-i+1]&&
             gameMapVec[row-i][col-i]==gameMapVec[row-i+2][col-i+2]&&
             gameMapVec[row-i][col-i]==gameMapVec[row-i+3][col-i+3]&&
@@ -92,10 +92,10 @@ bool GameModel::isWin(int row,int col)
     //斜向右上方向
     for(int i=0;i<5;i++)
     {
-        if(col-i>0&&
-            row+i>0&&
-            col-i+4<BOARD_GRAD_SIZE&&
-            row+i-4<BOARD_GRAD_SIZE&&
+        if(col-i>=0&&
+            row+i>=0&&
+            col-i+4<=BOARD_GRAD_SIZE&&
+            row+i-4<=BOARD_GRAD_SIZE&&
             gameMapVec[row+i][col-i]==gameMapVec[row+i-1][col-i+1]&&
             gameMapVec[row+i][col-i]==gameMapVec[row+i-2][col-i+2]&&
             gameMapVec[row+i][col-i]==gameMapVec[row+i-3][col-i+3]&&
@@ -113,20 +113,20 @@ void GameModel::calulateScore()
     int emptyNum=0;//各个方向上的空白位数
     //清空评分数组
     scoreMapVec.clear();
-    for(int i=0;i<BOARD_GRAD_SIZE;i++)
+    for(int i=0;i<=BOARD_GRAD_SIZE;i++)
     {
         std::vector<int>lineScore;
-        for(int j=0;j<BOARD_GRAD_SIZE;j++)
+        for(int j=0;j<=BOARD_GRAD_SIZE;j++)
         {
             lineScore.push_back(0);
         }
         scoreMapVec.push_back(lineScore);
     }
-    for (int row = 0; row < BOARD_GRAD_SIZE; row++)
-        for (int col = 0; col < BOARD_GRAD_SIZE; col++)
+    for (int row = 0; row <= BOARD_GRAD_SIZE; row++)
+        for (int col = 0; col <= BOARD_GRAD_SIZE; col++)
         {
             // 空白点就算
-            if (row > 0 && col > 0 &&
+            if (row >= 0 && col >= 0 &&
                 gameMapVec[row][col] == 0)
             {
                 // 遍历周围八个方向
@@ -146,14 +146,14 @@ void GameModel::calulateScore()
                             // 对玩家黑子评分（正反两个方向）
                             for (int i = 1; i <= 4; i++)
                             {
-                                if (row + i * y > 0 && row + i * y < BOARD_GRAD_SIZE&&
-                                    col + i * x > 0 && col + i * x < BOARD_GRAD_SIZE&&
+                                if (row + i * y >= 0 && row + i * y <= BOARD_GRAD_SIZE&&
+                                    col + i * x >= 0 && col + i * x <= BOARD_GRAD_SIZE&&
                                     gameMapVec[row + i * y][col + i * x] == 1) // 玩家的子
                                 {
                                     personNum++;
                                 }
-                                else if (row + i * y > 0 && row + i * y < BOARD_GRAD_SIZE &&
-                                         col + i * x > 0 && col + i * x < BOARD_GRAD_SIZE &&
+                                else if (row + i * y >= 0 && row + i * y <= BOARD_GRAD_SIZE &&
+                                         col + i * x >= 0 && col + i * x <= BOARD_GRAD_SIZE &&
                                          gameMapVec[row + i * y][col + i * x] == 0) // 空白位
                                 {
                                     emptyNum++;
@@ -165,14 +165,14 @@ void GameModel::calulateScore()
 
                             for (int i = 1; i <= 4; i++)
                             {
-                                if (row - i * y > 0 && row - i * y < BOARD_GRAD_SIZE &&
-                                    col - i * x > 0 && col - i * x < BOARD_GRAD_SIZE &&
+                                if (row - i * y >= 0 && row - i * y <= BOARD_GRAD_SIZE &&
+                                    col - i * x >= 0 && col - i * x <= BOARD_GRAD_SIZE &&
                                     gameMapVec[row - i * y][col - i * x] == 1) // 玩家的子
                                 {
                                     personNum++;
                                 }
-                                else if (row - i * y > 0 && row - i * y < BOARD_GRAD_SIZE &&
-                                         col - i * x > 0 && col - i * x < BOARD_GRAD_SIZE &&
+                                else if (row - i * y >= 0 && row - i * y <= BOARD_GRAD_SIZE &&
+                                         col - i * x >= 0 && col - i * x <= BOARD_GRAD_SIZE &&
                                          gameMapVec[row - i * y][col - i * x] == 0) // 空白位
                                 {
                                     emptyNum++;
@@ -208,14 +208,14 @@ void GameModel::calulateScore()
                             // 对AI白子评分
                             for (int i = 1; i <= 4; i++)
                             {
-                                if (row + i * y > 0 && row + i * y < BOARD_GRAD_SIZE &&
-                                    col + i * x > 0 && col + i * x < BOARD_GRAD_SIZE &&
+                                if (row + i * y >= 0 && row + i * y <= BOARD_GRAD_SIZE &&
+                                    col + i * x >= 0 && col + i * x <= BOARD_GRAD_SIZE &&
                                     gameMapVec[row + i * y][col + i * x] == 1) // 玩家的子
                                 {
                                     botNum++;
                                 }
-                                else if (row + i * y > 0 && row + i * y < BOARD_GRAD_SIZE &&
-                                         col + i * x > 0 && col + i * x < BOARD_GRAD_SIZE &&
+                                else if (row + i * y >= 0 && row + i * y <= BOARD_GRAD_SIZE &&
+                                         col + i * x >= 0 && col + i * x <= BOARD_GRAD_SIZE &&
                                          gameMapVec[row +i * y][col + i * x] == 0) // 空白位
                                 {
                                     emptyNum++;
@@ -227,14 +227,14 @@ void GameModel::calulateScore()
 
                             for (int i = 1; i <= 4; i++)
                             {
-                                if (row - i * y > 0 && row - i * y < BOARD_GRAD_SIZE &&
-                                    col - i * x > 0 && col - i * x < BOARD_GRAD_SIZE &&
+                                if (row - i * y >= 0 && row - i * y <= BOARD_GRAD_SIZE &&
+                                    col - i * x >= 0 && col - i * x <= BOARD_GRAD_SIZE &&
                                     gameMapVec[row - i * y][col - i * x] == -1) // AI的子
                                 {
                                     botNum++;
                                 }
-                                else if (row - i * y > 0 && row - i * y < BOARD_GRAD_SIZE &&
-                                         col - i * x > 0 && col - i * x < BOARD_GRAD_SIZE &&
+                                else if (row - i * y >= 0 && row - i * y <= BOARD_GRAD_SIZE &&
+                                         col - i * x >= 0 && col - i * x <= BOARD_GRAD_SIZE &&
                                          gameMapVec[row - i * y][col - i * x] == 0) // 空白位
                                 {
                                     emptyNum++;
@@ -279,9 +279,9 @@ void GameModel::actionByAI(int &clickRow,int &clickCol)
     //记录最大得分处的位置
     std::vector<std::pair<int,int>>maxPoints;
 
-    for(int row=0;row<BOARD_GRAD_SIZE;row++)
+    for(int row=0;row<=BOARD_GRAD_SIZE;row++)
     {
-        for(int col=0;col<BOARD_GRAD_SIZE;col++)
+        for(int col=0;col<=BOARD_GRAD_SIZE;col++)
         {
             if(gameMapVec[row][col]==0)
             {

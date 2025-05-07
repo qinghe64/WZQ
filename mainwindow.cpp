@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //设置窗口大小
     setFixedSize(
-        MARGIN*2+BLOCK_SIZE*BOARD_GRAD_SIZE,
+        MARGIN*2+BLOCK_SIZE*BOARD_GRAD_SIZE+100,
         MARGIN*2+BLOCK_SIZE*BOARD_GRAD_SIZE);
 
     initGame();
@@ -38,18 +38,18 @@ void MainWindow::paintEvent(QPaintEvent *event)
     {
         //从左到右，第（i+1）条竖线
         painter.drawLine(MARGIN+BLOCK_SIZE*i,MARGIN,
-                         MARGIN+BLOCK_SIZE*i,size().height()-MARGIN);
+                         MARGIN+BLOCK_SIZE*i,BLOCK_SIZE*BOARD_GRAD_SIZE+MARGIN);
         //从上到下，第（i+1）条横线
         painter.drawLine(MARGIN,MARGIN+BLOCK_SIZE*i,
-                         size().width()-MARGIN,MARGIN+BLOCK_SIZE*i);
+                         BLOCK_SIZE*BOARD_GRAD_SIZE+MARGIN,MARGIN+BLOCK_SIZE*i);
     }
 
     //绘制选中点
     QBrush brush;
     brush.setStyle(Qt::SolidPattern);
-    //绘制落子标记，防止鼠标出框越界
-    if(clickPosRow>0&&clickPosRow<BOARD_GRAD_SIZE&&
-        clickPosCol>0&&clickPosCol<BOARD_GRAD_SIZE&&
+    //绘制落子标记，边缘和拐角允许显示
+    if(clickPosRow>=0&&clickPosRow<=BOARD_GRAD_SIZE&&
+        clickPosCol>=0&&clickPosCol<=BOARD_GRAD_SIZE&&
         game->gameMapVec[clickPosRow][clickPosCol]==0)
     {
         if(game->playerFlag)
@@ -62,8 +62,8 @@ void MainWindow::paintEvent(QPaintEvent *event)
 
     }
     //绘制棋子
-    for(int i=0;i<BOARD_GRAD_SIZE;i++)
-        for(int j=0;j<BOARD_GRAD_SIZE;j++)
+    for(int i=0;i<=BOARD_GRAD_SIZE;i++)
+        for(int j=0;j<=BOARD_GRAD_SIZE;j++)
         {
             if(game->gameMapVec[i][j]==1)
             {
@@ -79,10 +79,10 @@ void MainWindow::paintEvent(QPaintEvent *event)
             }
         }
     //判断输赢
-    if(clickPosRow>0&&clickPosRow<BOARD_GRAD_SIZE&&
-        clickPosCol>0&&clickPosCol<BOARD_GRAD_SIZE&&
+    if(clickPosRow>=0&&clickPosRow<=BOARD_GRAD_SIZE&&
+        clickPosCol>=0&&clickPosCol<=BOARD_GRAD_SIZE&&
         (game->gameMapVec[clickPosRow][clickPosCol]==1||
-        game->gameMapVec[clickPosRow][clickPosCol]==-1))
+         game->gameMapVec[clickPosRow][clickPosCol]==-1))
     {
         if(game->isWin(clickPosRow,clickPosCol)&&game->gameStatus==PLAYING)
         {
@@ -90,16 +90,16 @@ void MainWindow::paintEvent(QPaintEvent *event)
             QString winner;
             if(game->gameMapVec[clickPosRow][clickPosCol]==1)
                 winner="黑棋方";
-                    else if (game->gameMapVec[clickPosRow][clickPosCol]==-1) {
+            else if (game->gameMapVec[clickPosRow][clickPosCol]==-1) {
                 winner="白棋方";
-                }
+            }
 
-                    QMessageBox::StandardButton btnValue=QMessageBox::information(this,"五子棋决战", winner+"胜利！");
-                if(btnValue==QMessageBox::Ok)
-                    {
-                        game->startGame(game_type);
-                    game->gameStatus=PLAYING;
-                }
+            QMessageBox::StandardButton btnValue=QMessageBox::information(this,"五子棋决战", winner+"胜利！");
+            if(btnValue==QMessageBox::Ok)
+            {
+                game->startGame(game_type);
+                game->gameStatus=PLAYING;
+            }
         }
     }
 
@@ -127,11 +127,8 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
     //通过鼠标的hover确定落子的标记
     int x=event->x();
     int y=event->y();
-    //棋盘边缘不能落子
-    if(x>=MARGIN+BLOCK_SIZE/2&&
-        x<size().width()-MARGIN-BLOCK_SIZE/2&&
-        y>=MARGIN+BLOCK_SIZE/2&&
-        y<size().height()-MARGIN-BLOCK_SIZE/2)
+    if(x>=MARGIN&&x<=size().width()-MARGIN&&
+        y>=MARGIN&&y<=size().height()-MARGIN)
     {
         //获取最近的左上角的点
         //add by rock
@@ -154,45 +151,53 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
         len=sqrt((x-leftTopPosX)*(x-leftTopPosX)+(y-leftTopPosY)*(y-leftTopPosY));
         if(len<POS_OFFSET)
         {
-            clickPosRow=row;
-            clickPosCol=col;
-            if(game->gameMapVec[clickPosRow][clickPosCol]==0)
-            {
-                selectPos=true;
+            if(row >= 0 && row <= BOARD_GRAD_SIZE &&
+                col >= 0 && col <= BOARD_GRAD_SIZE &&
+                game->gameMapVec[row][col] == 0) {
+                clickPosRow = row;
+                clickPosCol = col;
+                selectPos = true;
             }
         }
         //右上角
         len=sqrt((x-leftTopPosX-BLOCK_SIZE)*(x-leftTopPosX-BLOCK_SIZE)+(y-leftTopPosY)*(y-leftTopPosY));
         if(len<POS_OFFSET)
         {
-            clickPosRow=row;
-            clickPosCol=col+1;
-            if(game->gameMapVec[clickPosRow][clickPosCol]==0)
-            {
-                selectPos=true;
+            int checkCol = col + 1;
+            if(row >= 0 && row <= BOARD_GRAD_SIZE &&
+                checkCol >= 0 && checkCol <= BOARD_GRAD_SIZE &&
+                game->gameMapVec[row][checkCol] == 0) {
+                clickPosRow = row;
+                clickPosCol = checkCol;
+                selectPos = true;
             }
         }
         //左下角
         len=sqrt((x-leftTopPosX)*(x-leftTopPosX)+(y-leftTopPosY-BLOCK_SIZE)*(y-leftTopPosY-BLOCK_SIZE));
         if(len<POS_OFFSET)
         {
-            clickPosRow=row+1;
-            clickPosCol=col;
-            if(game->gameMapVec[clickPosRow][clickPosCol]==0)
-            {
-                selectPos=true;
+            int checkRow = row + 1;
+            if(checkRow >= 0 && checkRow <= BOARD_GRAD_SIZE &&
+                col >= 0 && col <= BOARD_GRAD_SIZE &&
+                game->gameMapVec[checkRow][col] == 0) {
+                clickPosRow = checkRow;
+                clickPosCol = col;
+                selectPos = true;
             }
         }
         //右下角
         len=sqrt((x-leftTopPosX-BLOCK_SIZE)*(x-leftTopPosX-BLOCK_SIZE)+(y-leftTopPosY-BLOCK_SIZE)*(y-leftTopPosY-BLOCK_SIZE));
         if(len<POS_OFFSET)
         {
-            clickPosRow=row+1;
-            clickPosCol=col+1;
-            if(game->gameMapVec[clickPosRow][clickPosCol]==0)
-            {
-                selectPos=true;
-            }
+            int checkCol = col + 1;
+            int checkRow = row + 1;
+            // 确保坐标在棋盘范围内（0 <= row/col < BOARD_GRAD_SIZE）
+            if(checkRow >= 0 && checkRow <= BOARD_GRAD_SIZE &&
+                checkCol >= 0 && checkCol <= BOARD_GRAD_SIZE &&
+                game->gameMapVec[checkRow][checkCol] == 0) {
+                clickPosRow = checkRow;
+                clickPosCol = checkCol;
+                selectPos = true;}
         }
         if(selectPos)
         {
@@ -241,7 +246,6 @@ void MainWindow::chessOneByAI()
     game->actionByAI(clickPosRow,clickPosCol);
     update();
 }
-
 
 
 
