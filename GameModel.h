@@ -56,6 +56,7 @@ public:
 
     bool isWin(int row,int col);
     void calulateScore();
+    void actionByAI(int &clickrow,int& clickcol);
 
 };
 

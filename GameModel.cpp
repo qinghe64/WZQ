@@ -1,4 +1,6 @@
 #include"GameModel.h"
+#include<time.h>
+#include<stdlib.h>
 
 void GameModel::startGame(GameType type)
 {
@@ -268,6 +270,41 @@ void GameModel::calulateScore()
 
             }
         }
+}
+void GameModel::actionByAI(int &clickRow,int &clickCol)
+{
+    //计算分值
+    calulateScore();
+    int maxScore=0;
+    //记录最大得分处的位置
+    std::vector<std::pair<int,int>>maxPoints;
+
+    for(int row=0;row<BOARD_GRAD_SIZE;row++)
+    {
+        for(int col=0;col<BOARD_GRAD_SIZE;col++)
+        {
+            if(gameMapVec[row][col]==0)
+            {
+                if(scoreMapVec[row][col]>maxScore)
+                {
+                    maxPoints.clear();
+                    maxScore=scoreMapVec[row][col];
+                    maxPoints.push_back(std::make_pair(row,col));
+                }
+                else if (scoreMapVec[row][col]==maxScore) {
+                    maxPoints.push_back(std::make_pair(row,col));
+                }
+            }
+        }
+    }
+    //如果有多个相同分值的解法，随机取一个
+    srand((unsigned)time(0));
+    int idex=rand()%maxPoints.size();
+
+    std::pair<int,int>pointPair=maxPoints.at(idex);
+    clickRow=pointPair.first;//记录落子点
+    clickCol=pointPair.second;
+    updateGameMap(clickRow,clickCol);
 }
 
 

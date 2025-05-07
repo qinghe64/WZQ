@@ -236,6 +236,11 @@ void MainWindow::chessOneByPerson()
         update();
     }
 }
+void MainWindow::chessOneByAI()
+{
+    game->actionByAI(clickPosRow,clickPosCol);
+    update();
+}
 
 
 

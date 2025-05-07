@@ -39,6 +39,9 @@ private:
 
     void  chessOneByPerson();
 
+   private slots:
+    void chessOneByAI();
+
 };
 #endif // MAINWINDOW_H
 
