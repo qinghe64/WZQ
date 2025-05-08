@@ -33,6 +33,7 @@ private slots:
 
     void initPVPGame();
     void initPVEGame();
+    void undoGame();  // 悔棋槽函数
 };
 
 #endif // MAINWINDOW_H

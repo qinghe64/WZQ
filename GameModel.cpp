@@ -40,16 +40,30 @@ void GameModel::startGame(GameType type)
 
 }
 
-void GameModel::updateGameMap(int row, int col)
-{
-    if (playerFlag)
-        gameMapVec[row][col] = 1;
-    else
-        gameMapVec[row][col] = -1;
-
-    // 换手
-    playerFlag = !playerFlag;
+// 在updateGameMap中记录每一步落子
+void GameModel::updateGameMap(int row, int col) {
+    int color = playerFlag ? 1 : -1;
+    bool isAI = (gameType == BOT && !playerFlag);  // AI下黑棋（playerFlag为false时）
+    moveHistory.append({row, col, color, isAI});   // 记录历史
+    gameMapVec[row][col] = color;
+    playerFlag = !playerFlag;  //换手
+    // 更新最新落子的坐标
+    lastMoveRow = row;
+    lastMoveCol = col;
 }
+
+
+// 实现悔棋逻辑（撤销最后一步）
+bool GameModel::undo() {
+    if (moveHistory.isEmpty()) return false;  // 无步骤可悔
+
+    Move lastMove = moveHistory.takeLast();
+    gameMapVec[lastMove.row][lastMove.col] = 0;  // 清空棋盘位置
+    playerFlag = (lastMove.color == 1);         // 恢复玩家标志（白棋后切黑棋，悔棋后恢复白棋状态）
+    gameStatus = PLAYING;                       // 恢复游戏状态为进行中
+    return true;
+}
+
 
 void GameModel::actionByPerson(int row, int col)
 {

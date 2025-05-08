@@ -10,10 +10,12 @@
 #include <math.h>
 #include "mainwindow.h"
 
+
 // -------全局遍历-------//
 #define CHESS_ONE_SOUND ":/res/sound/chessone.wav"
 #define WIN_SOUND ":/res/sound/win.wav"
 #define LOSE_SOUND ":/res/sound/lose.wav"
+
 
 const int kBoardMargin = 30; // 棋盘边缘空隙
 const int kRadius = 15; // 棋子半径
@@ -24,28 +26,33 @@ const int kPosDelta = 20; // 鼠标点击的模糊距离上限
 const int kAIDelay = 700; // AI下棋的思考时间
 
 // -------------------- //
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     // 设置棋盘大小
     setFixedSize(kBoardMargin * 2 + kBlockSize * kBoardSizeNum, kBoardMargin * 2 + kBlockSize * kBoardSizeNum);
-//    setStyleSheet("background-color:yellow;");
+    //setStyleSheet("background-color:yellow;");
 
     // 开启鼠标hover功能，这两句一般要设置window的
     setMouseTracking(true);
-//    centralWidget()->setMouseTracking(true);
+    //    centralWidget()->setMouseTracking(true);
 
-    // 添加菜单
-    QMenu *gameMenu = menuBar()->addMenu(tr("Game")); // menuBar默认是存在的，直接加菜单就可以了
-    QAction *actionPVP = new QAction("Person VS Person", this);
+    // 添加切换游戏模式菜单
+    QMenu *gameMenu_mode = menuBar()->addMenu(tr("游戏模式切换")); // menuBar默认是存在的，直接加菜单就可以了
+    QAction *actionPVP = new QAction("人人对战", this);
     connect(actionPVP, SIGNAL(triggered()), this, SLOT(initPVPGame()));
-    gameMenu->addAction(actionPVP);
+    gameMenu_mode->addAction(actionPVP);
 
-    QAction *actionPVE = new QAction("Person VS Computer", this);
+    QAction *actionPVE = new QAction("人机对战", this);
     connect(actionPVE, SIGNAL(triggered()), this, SLOT(initPVEGame()));
-    gameMenu->addAction(actionPVE);
+    gameMenu_mode->addAction(actionPVE);
 
+    // 添加悔棋菜单
+    QMenu *gameMenu_undo = menuBar()->addMenu(tr("悔棋"));
+    QAction *actionUndo = new QAction("悔棋 (Ctrl+Z)", this);
+    actionUndo->setShortcut(QKeySequence::Undo);  // 绑定快捷键Ctrl+Z
+    connect(actionUndo, &QAction::triggered, this, &MainWindow::undoGame);
+    gameMenu_undo->addAction(actionUndo);
     // 开始游戏
     initGame();
 }
@@ -87,9 +94,6 @@ void MainWindow::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     // 绘制棋盘
     painter.setRenderHint(QPainter::Antialiasing, true); // 抗锯齿
-//    QPen pen; // 调整线条宽度
-//    pen.setWidth(2);
-//    painter.setPen(pen);
     for (int i = 0; i < kBoardSizeNum + 1; i++)
     {
         painter.drawLine(kBoardMargin + kBlockSize * i, kBoardMargin, kBoardMargin + kBlockSize * i, size().height() - kBoardMargin);
@@ -129,6 +133,27 @@ void MainWindow::paintEvent(QPaintEvent *event)
             }
         }
 
+    // 绘制最新落子的十字标记
+    int lastRow = game->getLastMoveRow();
+    int lastCol = game->getLastMoveCol();
+    if (lastRow >= 0 && lastRow < kBoardSizeNum &&
+        lastCol >= 0 && lastCol < kBoardSizeNum) {
+        int centerX = kBoardMargin + kBlockSize * lastCol;
+        int centerY = kBoardMargin + kBlockSize * lastRow;
+        QPen pen;
+        if (game->gameMapVec[lastRow][lastCol] == -1) {  // 黑子上标记白色十字
+            pen.setColor(Qt::white);
+        } else {  // 白子上标记黑色十字
+            pen.setColor(Qt::black);
+        }
+        pen.setWidth(2);
+        painter.setPen(pen);
+        // 绘制十字的横线
+        painter.drawLine(centerX - kRadius / 2, centerY, centerX + kRadius / 2, centerY);
+        // 绘制十字的竖线
+        painter.drawLine(centerX, centerY - kRadius / 2, centerX, centerY + kRadius / 2);
+    }
+
     // 判断输赢
     if (clickPosRow > 0 && clickPosRow < kBoardSizeNum &&
         clickPosCol > 0 && clickPosCol < kBoardSizeNum &&
@@ -155,7 +180,6 @@ void MainWindow::paintEvent(QPaintEvent *event)
             }
         }
     }
-
 
     // 判断死局
     if (game->isDeadGame())
@@ -262,4 +286,27 @@ void MainWindow::chessOneByAI()
     QSound::play(CHESS_ONE_SOUND);
     update();
 }
+
+//悔棋槽函数
+void MainWindow::undoGame() {
+    if (game->gameStatus != PLAYING) {
+        QMessageBox::information(this, "提示", "游戏未开始或已结束");
+        return;
+    }
+
+    int steps = (game_type == PERSON) ? 1 : 2;  // 双人模式悔1步，人机模式悔2步（玩家+AI）
+    bool success = false;
+
+    for (int i = 0; i < steps; ++i) {
+        if (game->moveHistory.isEmpty()) break;  // 无更多步骤可悔
+        success = game->undo();
+    }
+
+    if (success) {
+        update();  // 刷新棋盘显示
+    } else {
+        QMessageBox::information(this, "提示", "无法悔棋，没有历史记录");
+    }
+}
+
 
